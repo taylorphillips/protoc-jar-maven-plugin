@@ -16,7 +16,7 @@
       <scope>runtime</scope>
       <includes>
         <include>com.github.os72:protoc-jar</include>
-        <include>com.github.os72:protoc-jar-maven-plugin</include>
+        <include>com.github.taylorphillips:protoc-jar-maven-plugin</include>
       </includes>
     </dependencySet>
   </dependencySets>
