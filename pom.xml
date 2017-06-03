@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.github.os72</groupId>
+  <groupId>com.github.taylorphillips</groupId>
   <artifactId>protoc-jar-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <version>3.3.0</version>
@@ -31,11 +31,11 @@
 	</developer>
   </developers>
 
-  <scm>
-	<connection>scm:git:git@github.com:os72/protoc-jar-maven-plugin.git</connection>
-	<developerConnection>scm:git:git@github.com:os72/protoc-jar-maven-plugin.git</developerConnection>
-	<url>git@github.com:os72/protoc-jar-maven-plugin.git</url>
-  </scm>
+  <!--<scm>-->
+	<!--<connection>scm:git:git@github.com:os72/protoc-jar-maven-plugin.git</connection>-->
+	<!--<developerConnection>scm:git:git@github.com:os72/protoc-jar-maven-plugin.git</developerConnection>-->
+	<!--<url>git@github.com:os72/protoc-jar-maven-plugin.git</url>-->
+  <!--</scm>-->
 
   <dependencies>
 	<dependency>
