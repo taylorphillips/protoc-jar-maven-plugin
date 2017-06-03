@@ -485,11 +485,13 @@ public class ProtocJarMojo extends AbstractMojo
 
 		String str = "";
 		for(Iterator<File> iter = files.iterator(); iter.hasNext();) {
-				File file = iter.next();
-				str = str + " " + file.toString();
+
+			File file = iter.next();
+			cmd.add(file.toString());
+
+			str = str + " " + file.toString();
 		}
 
-		cmd.add(str);
 		if (version != null) cmd.add("-v" + version);
 		return cmd;
 	}
