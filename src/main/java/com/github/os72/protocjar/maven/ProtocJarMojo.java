@@ -25,9 +25,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -388,28 +391,26 @@ public class ProtocJarMojo extends AbstractMojo
 			targetType = "java";
 			shaded = true;
 		}
-		
+
 		FileFilter fileFilter = new FileFilter(extension);
 		for (File input : inputDirectories) {
 			if (input == null) continue;
-			
+
 			if (input.exists() && input.isDirectory()) {
 				Collection<File> protoFiles = FileUtils.listFiles(input, fileFilter, TrueFileFilter.INSTANCE);
-				for (File protoFile : protoFiles) {
-					if (target.cleanOutputFolder || buildContext.hasDelta(protoFile.getPath())) {
-						processFile(protoFile, protocVersion, targetType, target.pluginPath, target.outputDirectory, target.outputOptions);
-					}
-					else {
-						getLog().info("Not changed " + protoFile);
-					}
-				}
+				Set<File> files = new LinkedHashSet<File>();
+
+				// New Goal! We want only one prrocess per target!
+				// Gather all files, concat them. And all good?
+				processFiles(protoFiles, protocVersion, targetType, target.pluginPath, target.outputDirectory, target.outputOptions);
 			}
 			else {
 				if (input.exists()) getLog().warn(input + " is not a directory");
 				else getLog().warn(input + " does not exist");
 			}
 		}
-		
+
+
 		if (shaded) {
 			try {
 				getLog().info("    Shading (version " + protocVersion + "): " + target.outputDirectory);
@@ -436,30 +437,33 @@ public class ProtocJarMojo extends AbstractMojo
 		}
 	}
 
-	private void processFile(File file, String version, String type, String pluginPath, File outputDir, String outputOptions) throws MojoExecutionException {
-		getLog().info("    Processing ("+ type + "): " + file.getName());
-		Collection<String> cmd = buildCommand(file, version, type, pluginPath, outputDir, outputOptions);
+	private void processFiles(Collection<File> files, String version, String type, String pluginPath, File outputDir, String outputOptions) throws MojoExecutionException {
+		getLog().info("    Processing ("+ type + "): ");// + file.getName());
+		Collection<String> cmd = buildCommand(files, version, type, pluginPath, outputDir, outputOptions);
 		try {
 			int ret = 0;
 			if (protocCommand == null) ret = Protoc.runProtoc(cmd.toArray(new String[0]));
 			else ret = Protoc.runProtoc(protocCommand, cmd.toArray(new String[0]));
-			if (ret != 0) throw new MojoExecutionException("protoc-jar failed for " + file + ". Exit code " + ret);
+			if (ret != 0) throw new MojoExecutionException("protoc-jar failed for "  + ". Exit code " + ret);
 		}
 		catch (InterruptedException e) {
 			throw new MojoExecutionException("Interrupted", e);
 		}
 		catch (IOException e) {
-			throw new MojoExecutionException("Unable to execute protoc-jar for " + file, e);
+			throw new MojoExecutionException("Unable to execute protoc-jar for ", e);
 		}
 	}
 
-	private Collection<String> buildCommand(File file, String version, String type, String pluginPath, File outputDir, String outputOptions) throws MojoExecutionException {
+
+	private Collection<String> buildCommand(Collection<File> files, String version, String type, String pluginPath, File outputDir, String outputOptions) throws MojoExecutionException {
+		//File outFile = new File(outputDir, file.getName());
+
+
 		Collection<String> cmd = new ArrayList<String>();
 		populateIncludes(cmd);
-		cmd.add("-I" + file.getParentFile().getAbsolutePath());
+		//cmd.add("-I" + file.getParentFile().getAbsolutePath());
 		if ("descriptor".equals(type)) {
-			File outFile = new File(outputDir, file.getName());
-			cmd.add("--descriptor_set_out=" + FilenameUtils.removeExtension(outFile.toString()) + ".desc");
+			//cmd.add("--descriptor_set_out=" + FilenameUtils.removeExtension(outFile.toString()) + ".desc");
 			cmd.add("--include_imports");
 			if (outputOptions != null) {
 				for (String arg : outputOptions.split("\\s+")) cmd.add(arg);
@@ -478,7 +482,14 @@ public class ProtocJarMojo extends AbstractMojo
 				cmd.add("--plugin=protoc-gen-" + type + "=" + pluginPath);
 			}
 		}
-		cmd.add(file.toString());
+
+		String str = "";
+		for(Iterator<File> iter = files.iterator(); iter.hasNext();) {
+				File file = iter.next();
+				str = str + " " + file.toString();
+		}
+
+		cmd.add(str);
 		if (version != null) cmd.add("-v" + version);
 		return cmd;
 	}
