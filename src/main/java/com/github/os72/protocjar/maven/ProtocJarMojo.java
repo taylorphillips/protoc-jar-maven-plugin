@@ -26,13 +26,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 
-import java.util.Set;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.maven.artifact.Artifact;
@@ -392,15 +390,14 @@ public class ProtocJarMojo extends AbstractMojo
 			shaded = true;
 		}
 
+		DirectoryFilter dirFilter = new DirectoryFilter();
 		FileFilter fileFilter = new FileFilter(extension);
 		for (File input : inputDirectories) {
 			if (input == null) continue;
 
 			if (input.exists() && input.isDirectory()) {
-				Collection<File> protoFiles = FileUtils.listFiles(input, fileFilter, TrueFileFilter.INSTANCE);
-				Set<File> files = new LinkedHashSet<File>();
-
-				// New Goal! We want only one prrocess per target!
+				Collection<File> protoFiles = FileUtils.listFiles(input, , FalseFileFilter.INSTANCE);
+				// New Goal! We want only one prrocess per directory in target (aka package)!
 				// Gather all files, concat them. And all good?
 				processFiles(protoFiles, protocVersion, targetType, target.pluginPath, target.outputDirectory, target.outputOptions);
 			}
@@ -457,14 +454,13 @@ public class ProtocJarMojo extends AbstractMojo
 
 	private Collection<String> buildCommand(Collection<File> files, String version, String type, String pluginPath, File outputDir, String outputOptions) throws MojoExecutionException {
 		//File outFile = new File(outputDir, file.getName());
-
-
 		Collection<String> cmd = new ArrayList<String>();
 		populateIncludes(cmd);
 		//cmd.add("-I" + file.getParentFile().getAbsolutePath());
 		if ("descriptor".equals(type)) {
-			//cmd.add("--descriptor_set_out=" + FilenameUtils.removeExtension(outFile.toString()) + ".desc");
 			cmd.add("--include_imports");
+			cmd.add("--include_source_info");
+			cmd.add("--descriptor_set_out=" + outputDir);
 			if (outputOptions != null) {
 				for (String arg : outputOptions.split("\\s+")) cmd.add(arg);
 			}
@@ -557,6 +553,21 @@ public class ProtocJarMojo extends AbstractMojo
 
 		public boolean accept(File file) {
 			return file.getName().endsWith(extension);
+		}
+	}
+
+
+	static class DirectoryFilter implements IOFileFilter
+	{
+		public DirectoryFilter() {
+		}
+
+		public boolean accept(File dir, String name) {
+			return dir.isDirectory();
+		}
+
+		public boolean accept(File file) {
+			return file.isDirectory();
 		}
 	}
 }

@@ -1,3 +1,13 @@
+
+
+So this is a fork to make the thing work for single-file go protoc philosophy, which is different than everything else.
+
+Anyway, forked this puppy, hacked some shit, now push versions to [SOME ONLINE MAVEN REPO FROM GITHUB]
+
+Make a change, commit it, push it, tag the release, Make sure the release lines up with all the pom.
+
+
+
 protoc-jar-maven-plugin
 =======================
 
