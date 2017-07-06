@@ -32,7 +32,7 @@ import java.util.Properties;
 
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.maven.artifact.Artifact;
@@ -392,6 +392,7 @@ public class ProtocJarMojo extends AbstractMojo
 			shaded = true;
 		}
 
+		DirectoryFilter dirFilter = new DirectoryFilter();
 		FileFilter fileFilter = new FileFilter(extension);
 		for (File input : inputDirectories) {
 			if (input == null) continue;
@@ -457,14 +458,13 @@ public class ProtocJarMojo extends AbstractMojo
 
 	private Collection<String> buildCommand(Collection<File> files, String version, String type, String pluginPath, File outputDir, String outputOptions) throws MojoExecutionException {
 		//File outFile = new File(outputDir, file.getName());
-
-
 		Collection<String> cmd = new ArrayList<String>();
 		populateIncludes(cmd);
 		//cmd.add("-I" + file.getParentFile().getAbsolutePath());
 		if ("descriptor".equals(type)) {
-			//cmd.add("--descriptor_set_out=" + FilenameUtils.removeExtension(outFile.toString()) + ".desc");
 			cmd.add("--include_imports");
+			cmd.add("--include_source_info");
+			cmd.add("--descriptor_set_out=" + outputDir);
 			if (outputOptions != null) {
 				for (String arg : outputOptions.split("\\s+")) cmd.add(arg);
 			}
