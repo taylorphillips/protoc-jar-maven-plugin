@@ -457,14 +457,13 @@ public class ProtocJarMojo extends AbstractMojo
 
 	private Collection<String> buildCommand(Collection<File> files, String version, String type, String pluginPath, File outputDir, String outputOptions) throws MojoExecutionException {
 		//File outFile = new File(outputDir, file.getName());
-
-
 		Collection<String> cmd = new ArrayList<String>();
 		populateIncludes(cmd);
 		//cmd.add("-I" + file.getParentFile().getAbsolutePath());
 		if ("descriptor".equals(type)) {
-			//cmd.add("--descriptor_set_out=" + FilenameUtils.removeExtension(outFile.toString()) + ".desc");
 			cmd.add("--include_imports");
+			cmd.add("--include_source_info");
+			cmd.add("--descriptor_set_out=" + outputDir);
 			if (outputOptions != null) {
 				for (String arg : outputOptions.split("\\s+")) cmd.add(arg);
 			}
