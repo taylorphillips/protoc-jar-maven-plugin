@@ -463,7 +463,8 @@ public class ProtocJarMojo extends AbstractMojo
 		if ("descriptor".equals(type)) {
 			cmd.add("--include_imports");
 			cmd.add("--include_source_info");
-			cmd.add("--descriptor_set_out=" + outputDir);
+			cmd.add("--descriptor_set_out=" + FilenameUtils.removeExtension(outputDir.toString()) + ".pb");
+
 			if (outputOptions != null) {
 				for (String arg : outputOptions.split("\\s+")) cmd.add(arg);
 			}
